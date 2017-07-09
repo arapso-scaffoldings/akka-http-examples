@@ -6,13 +6,18 @@ import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 
 trait ImagesRouter {
+
+  protected final val ImageBase = "image"
+
   def logger: LoggingAdapter
 
+  def imagesPath: String
+
   final def routes = {
-    (get & path("images" / Segment ~ Slash.?)
+    (get & path(ImageBase / Segment ~ Slash.?)
       & parameter('preview.as[Boolean].?(false))) {
       (imageId: String, preview: Boolean) => {
-        complete(s"Original image view $imageId $preview")
+        getFromFile(s"$imagesPath/$imageId")
       }
     }
   }
@@ -28,6 +33,8 @@ object ImagesApp extends App with ImagesRouter {
 
   val iface = config.getString("http.interface")
   val port = config.getInt("http.port")
+
+  val imagesPath = config.getString("app.images.path")
 
   Http().bindAndHandle(routes, iface, port)
 

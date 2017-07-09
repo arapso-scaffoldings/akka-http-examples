@@ -5,7 +5,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 
-
 trait HelloService {
   def logger: LoggingAdapter
 
@@ -16,7 +15,7 @@ trait HelloService {
 }
 
 
-object HelloApp extends App with ImagesRouter {
+object HelloApp extends App with HelloService {
 
   implicit val system = ActorSystem()
   implicit val executor = system.dispatcher
