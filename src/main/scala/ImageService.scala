@@ -1,0 +1,8 @@
+
+object ImageService {
+
+  def getImage = {
+
+  }
+
+}

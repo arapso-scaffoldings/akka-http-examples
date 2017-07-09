@@ -5,19 +5,20 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 
-
-trait HelloService {
+trait ImagesRouter {
   def logger: LoggingAdapter
 
-  def routes =
-    (get & path("hello")) {
-      complete("Hello world")
+  final def routes = {
+    (get & path("images" / Segment ~ Slash.?)
+      & parameter('preview.as[Boolean].?(false))) {
+      (imageId: String, preview: Boolean) => {
+        complete(s"Original image view $imageId $preview")
+      }
     }
+  }
 }
 
-
-object HelloApp extends App with ImagesRouter {
-
+object ImagesApp extends App with ImagesRouter {
   implicit val system = ActorSystem()
   implicit val executor = system.dispatcher
   implicit val materializer = ActorMaterializer()
@@ -25,6 +26,9 @@ object HelloApp extends App with ImagesRouter {
   val config = ConfigFactory.load()
   val logger: LoggingAdapter = Logging(system, getClass)
 
-  Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
+  val iface = config.getString("http.interface")
+  val port = config.getInt("http.port")
+
+  Http().bindAndHandle(routes, iface, port)
 
 }
